@@ -66,14 +66,14 @@ function hamtaEnskildAktivitet(string $id): Response {
     $kontrolleratId = filter_var($id, FILTER_VALIDATE_INT);
     if($kontrolleratId === false || $kontrolleratId < 1) {
         $retur = new stdClass();
-        $retur->error=['Bad Request', 'Id måste vara ett heltal större än 0'];
+        $retur->error=['Bad Request', 'id måste vara ett heltal större än 0'];
         return new Response($retur, 400);
     }
     //kopplas mot databasen
     $db = connectDb();
     //skicka fråga
-    $stmt = $db->prepare("SELECT id, namn FROM aktiviteter WHERE id = :Id");
-    $result = $stmt->execute(["Id" => $kontrolleratId]);
+    $stmt = $db->prepare("SELECT id, namn FROM aktiviteter WHERE id = :id");
+    $result = $stmt->execute(["id" => $kontrolleratId]);
 
     //kontrollera svar
     if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -95,7 +95,7 @@ function hamtaEnskildAktivitet(string $id): Response {
  */
 function sparaNyAktivitet(string $aktivitet): Response {
     //kontrollera indata - rensa bort onödiga tecken
-    $kontrolleradAktivitet = filter_var($aktivitet, FILTER_SANITIZE_ENCODED);
+    $kontrolleradAktivitet = filter_var($aktivitet, FILTER_SANITIZE_SPECIAL_CHARS);
 
     //kontrollera att aktiviteten inre är tom!
     if(trim($aktivitet) === "") {
@@ -136,12 +136,49 @@ function sparaNyAktivitet(string $aktivitet): Response {
  * @return Response
  */
 function uppdateraAktivitet(string $id, string $aktivitet): Response {
-}
+    //kontrollera indata
+    $kontrolleratId = filter_var($id, FILTER_VALIDATE_INT);
+    $kontrolleradAktivitet = filter_var($aktivitet, FILTER_SANITIZE_SPECIAL_CHARS);
+    $konttrolleradAktivitet = trim($kontrolleradAktivitet);
 
+    if($kontrolleratId === false || $kontrolleratId < 1
+    || $konttrolleradAktivitet === "") {
+        $retur = new stdClass();
+        $retur->error=['Bad Request', 'Felaktigt indata till uppdatera aktivitet'];
+        return new Response($retur, 400);
+    }
+
+    try {
+    //koppla databas
+    $db = connectDb();
+
+    //förbereda fråga
+    $stmt = $db->prepare("UPDATE aktiviteter SET namn = :Aktivitet WHERE id = :id");
+    $stmt->execute(["Aktivitet" => $kontrolleradAktivitet, "id" => $kontrolleratId]);
+
+    //hantera svar
+    if($stmt->rowCount() === 1) {
+        $retur = new stdClass();
+        $retur->result=true;
+        $retur->meddelande=['Uppdatera lyckades', '1 rad uppdaterad'];
+        return new Response($retur);
+} else {
+    $retur = new stdClass();
+    $retur->result = false;
+    $retur->meddelande=['Uppdatera aktivitet misslyckades', 'ingen rad uppdaterad'];
+    return new Response($retur, 200);
+}
+} catch (exception $e) {
+    $retur = new stdClass();
+    $retur->error=['Bad Request', 'Något gick fel vid databasanropet'
+    , $e->getMessage()];
+    return new Response($retur, 400);
+}
+}
 /**
  * Raderar en aktivitet med angivet id
  * @param string $id Id för posten som ska raderas
  * @return Response
  */
-function raderaAktivetet(string $id): Response {
-}
+function raderaAktivitet(string $id): Response {
+} 
