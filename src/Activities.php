@@ -50,11 +50,12 @@ function hamtaAllaAktiviteter(): Response {
     foreach ($result as $item) {
         $post = new stdClass();
         $post -> id=$item["id"];
-        $post -> namn=$item["namn"]; 
+        $post -> activity=$item["namn"]; 
         $retur[] = $post;
     }
+    
 // skicka svar
-return new Response($retur);
+return new Response(["activities"=>$retur]);
 }
 /**
  * Returnerar en enskild aktivitet som finns i databasen
@@ -139,10 +140,11 @@ function uppdateraAktivitet(string $id, string $aktivitet): Response {
     //kontrollera indata
     $kontrolleratId = filter_var($id, FILTER_VALIDATE_INT);
     $kontrolleradAktivitet = filter_var($aktivitet, FILTER_SANITIZE_SPECIAL_CHARS);
-    $konttrolleradAktivitet = trim($kontrolleradAktivitet);
+    $kontrolleradAktivitet = trim($kontrolleradAktivitet);
+
 
     if($kontrolleratId === false || $kontrolleratId < 1
-    || $konttrolleradAktivitet === "") {
+    || $kontrolleradAktivitet === "") {
         $retur = new stdClass();
         $retur->error=['Bad Request', 'Felaktigt indata till uppdatera aktivitet'];
         return new Response($retur, 400);
