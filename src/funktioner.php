@@ -39,6 +39,7 @@ function kontrolleraIndata(array $postdata):array {
     if (!$tid) {
         $retur[] = "Ogiltig angivet tid";
     }
+
     if($tid && $tid->format("H:i")!==$postdata['time']) {
         $retur[] = "Felaktigt angiven tid";
     }
