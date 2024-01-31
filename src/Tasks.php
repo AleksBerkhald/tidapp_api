@@ -168,11 +168,12 @@ function hamtaDatum(string $from, string $tom): Response {
         $rad->time=$row["tid"];
         $tid = new DateTime($row["tid"]);
         $rad->time = $tid->format("H:i");
-        $rad->activityId = $row["namn"];
+        $rad->activity = $row["namn"];
         $rad->description = $row["beskrivning"];
         $uppgifter[] = $rad;
 
     }
+
 
     //returnera svar
     $retur = new stdClass();
