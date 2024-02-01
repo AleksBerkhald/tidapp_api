@@ -1,7 +1,7 @@
 <?php
 
 declare (strict_types=1);
-require_once __DIR__ . '/activities.php';
+require_once __DIR__ . '/Activities.php';
 
 /**
  * Hämtar en lista med alla uppgifter och tillhörande aktiviteter 
@@ -216,6 +216,7 @@ function hamtaEnskildUppgift(string $id): Response {
         $retur->time = substr($row['tid'], 0, -3);
         $retur->activity = $row['namn'];
         $retur->activityId = $row['aktivitetId'];
+        $retur->description = $row['beskrivning'];
         return new Response($retur);
 
     } else {
